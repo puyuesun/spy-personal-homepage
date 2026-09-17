@@ -1,0 +1,5 @@
+# Local agent runtime, caches, uploads, and temporary preview artifacts
+.deepworks/
+.opencode/
+uploads/
+*.log

@@ -1,0 +1,862 @@
+/* ==========================================================================
+   孙璞月 Spy · 个人主页  —  V2.2 样式
+   视觉方向：简约科技感 / 深色 / 克莱因蓝主色调
+   V2.1 变更：1) 首屏 Hero 增加「漂浮 3D 粒子」Canvas 背景层
+                （参考 Magic UI Floating 3D Particles，改用原生 Canvas 实现）
+             2) 首屏「联系我」按钮改用 Shimmer Button 边框扫光
+                （参考 Magic UI Shimmer Button，改用原生 CSS 实现）
+   V2.2 变更：1) 首屏（Hero）区域的原静态网格保持不变、仅覆盖首屏
+             2) 首屏以外的全部区域改用「交互式网格背景」
+                （参考 Magic UI Interactive Grid Pattern，改用原生 SVG 实现）
+                —— 指针所在的那一格被填充高亮，指针移开后缓慢淡出
+             3) 【玻璃拟态】页面上所有半透明框（18 个卡片 + 导航条 + 各种小控件）
+                统一改为 Glassmorphism：半透明底 + backdrop-filter 模糊 + 浅色描边
+                + 上沿内高光 + 柔和外阴影，令牌见 :root 的 --glass-* 变量
+   ========================================================================== */
+
+:root {
+  /* 主色调：克莱因蓝 */
+  --klein: #002fa7;
+  --klein-soft: #1d4ed8;
+  --klein-bright: #2f6bff;
+  --accent: #35d6ff;
+
+  /* 背景与表面 */
+  --bg: #05070f;
+  --bg-2: #080d1c;
+  --border: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(47, 107, 255, 0.45);
+
+  /* ---- Glassmorphism（磨砂玻璃）参数 ----
+     V2.2 起，页面上所有「半透明框」统一走这套令牌：
+     玻璃 = 半透明底色 + 背后模糊(backdrop-filter) + 1px 浅色描边 + 上沿内高光 + 柔和外阴影 */
+  --card: rgba(12, 19, 40, 0.50);          /* 玻璃底色：半透明，透出背后的网格与光晕 */
+  --card-hover: rgba(20, 33, 66, 0.56);    /* 悬停时略提亮 */
+  --glass-sheen: linear-gradient(150deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.015) 38%, rgba(255, 255, 255, 0.05));
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-border-hover: rgba(94, 150, 255, 0.52);
+  --glass-inner: inset 0 1px 0 rgba(255, 255, 255, 0.18);   /* 上沿高光：玻璃的「厚度」 */
+  --glass-blur: 18px;                      /* 卡片模糊半径 */
+  --glass-blur-sm: 10px;                   /* 小控件模糊半径（省性能） */
+  --glass-sat: 150%;                       /* 提高饱和度，让背后的蓝更透 */
+  --glass-shadow: 0 18px 44px rgba(2, 5, 16, 0.50);
+  --glass-shadow-hover: 0 26px 60px rgba(0, 47, 167, 0.42);
+
+  /* 文字 */
+  --text: #eaf0ff;
+  --muted: #93a3c6;
+  --faint: #5f6f92;
+
+  /* 尺寸 */
+  --maxw: 1140px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --nav-h: 68px;
+
+  --font-sans: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "SFMono-Regular", "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-h) + 16px); }
+
+body {
+  position: relative;   /* V2.2：作为背景装饰层（.bg-grid / .igrid-layer）的绝对定位参照 */
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+ul { list-style: none; }
+
+.en {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  letter-spacing: 0.02em;
+  color: var(--faint);
+  font-weight: 400;
+}
+
+/* ---------- 背景装饰 ---------- */
+/* 首屏静态网格：V2.2 起由「铺满整个视口」改为「只覆盖首屏区域」，
+   高度跟随 --hero-h（由 script.V2.2.js 实测首屏高度写入），
+   因此首屏保持 V1/V2.1 的观感，首屏以外则交给下方 .igrid-layer 的交互式网格 */
+.bg-grid {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: var(--hero-h, 100vh);
+  z-index: -2;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(47, 107, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(47, 107, 255, 0.07) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 30%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 30%, transparent 100%);
+}
+
+.bg-glow {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(600px 400px at 78% 8%, rgba(0, 47, 167, 0.55), transparent 70%),
+    radial-gradient(500px 380px at 12% 30%, rgba(53, 214, 255, 0.10), transparent 70%),
+    radial-gradient(700px 500px at 50% 110%, rgba(29, 78, 216, 0.20), transparent 70%);
+}
+
+/* ---------- 导航 ---------- */
+/* 导航条 = 通栏磨砂玻璃（与卡片同一套玻璃令牌，模糊更实、底色更浅） */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-h);
+  z-index: 100;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  background: rgba(6, 10, 22, 0.55);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+}
+.nav.scrolled {
+  border-bottom-color: var(--glass-border);
+  background: rgba(6, 10, 22, 0.72);
+  box-shadow: 0 10px 30px rgba(2, 5, 16, 0.45);
+}
+
+.nav-inner {
+  max-width: var(--maxw);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.brand-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--klein-bright);
+  box-shadow: 0 0 12px var(--klein-bright), 0 0 24px rgba(47, 107, 255, 0.6);
+}
+.brand-text .en { margin-left: 4px; }
+
+.nav-links { display: flex; gap: 6px; }
+.nav-link {
+  font-size: 0.9rem;
+  color: var(--muted);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;   /* 预留描边位，激活时加玻璃描边不会跳动 */
+  transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+/* 导航项悬停 / 选中 = 小玻璃片 */
+.nav-link:hover {
+  color: var(--text);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.03));
+  border-color: var(--glass-border);
+  box-shadow: var(--glass-inner);
+}
+.nav-link.active {
+  color: var(--accent);
+  background: linear-gradient(150deg, rgba(94, 150, 255, 0.22), rgba(47, 107, 255, 0.10));
+  border-color: rgba(94, 150, 255, 0.32);
+  box-shadow: var(--glass-inner);
+}
+.nav-link .en { display: block; font-size: 0.68rem; line-height: 1.2; }
+
+.nav-cta {
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 9px 18px;
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--klein) 0%, var(--klein-bright) 100%);
+  border: 1px solid rgba(53, 214, 255, 0.35);
+  box-shadow: 0 6px 20px rgba(0, 47, 167, 0.45);
+  transition: transform 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+.nav-cta:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(47, 107, 255, 0.55); }
+.nav-cta .en { display: none; }
+
+/* ---------- 通用区块 ---------- */
+.section {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 84px 24px;
+}
+
+.section-head { margin-bottom: 36px; }
+.section-index {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--klein-bright);
+  letter-spacing: 0.2em;
+  margin-bottom: 8px;
+}
+.section-title {
+  font-size: clamp(1.6rem, 3.4vw, 2.3rem);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.section-title .en { display: block; margin-top: 4px; font-size: 0.8rem; letter-spacing: 0.16em; text-transform: uppercase; }
+.section-sub { color: var(--muted); font-size: 0.95rem; margin-top: 10px; }
+
+/* 卡片 = 磨砂玻璃面板（Glassmorphism）
+   半透明底色 + backdrop-filter 模糊背后内容 + 1px 浅色描边 + 上沿内高光 + 柔和外阴影 */
+.card {
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+  border-radius: var(--radius);
+  background: var(--glass-sheen), var(--card);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-inner);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  transition: border-color 0.25s, background 0.25s, transform 0.25s, box-shadow 0.25s;
+}
+.card:hover {
+  border-color: var(--glass-border-hover);
+  background: var(--glass-sheen), var(--card-hover);
+  box-shadow: var(--glass-shadow-hover), var(--glass-inner);
+  transform: translateY(-3px);
+}
+
+.placeholder-text { color: var(--faint); font-style: italic; }
+/* 占位标签 = 虚线描边的玻璃小片（保留原有虚线语义，补上玻璃底与模糊） */
+.placeholder-tag {
+  font-size: 0.7rem;
+  color: var(--accent);
+  padding: 2px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  border: 1px dashed rgba(53, 214, 255, 0.5);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)), rgba(10, 16, 34, 0.38);
+  box-shadow: var(--glass-inner);
+  backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-sat));
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  min-height: 100vh;
+  width: 100%;
+  padding: calc(var(--nav-h) + 60px) 24px 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* --- 首屏 3D 粒子背景层（V2.1 新增） --- */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.hero-particles {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* 边缘柔化：让粒子在下沿与两侧自然淡出，避免生硬截断 */
+.hero-bg-fade {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(115% 85% at 50% 42%, transparent 42%, rgba(5, 7, 15, 0.55) 76%, var(--bg) 100%),
+    linear-gradient(180deg, transparent 62%, rgba(5, 7, 15, 0.75) 92%, var(--bg) 100%);
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.35fr 0.65fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+.eyebrow-line {
+  width: 40px; height: 2px;
+  background: linear-gradient(90deg, var(--klein-bright), var(--accent));
+  border-radius: 2px;
+}
+.eyebrow .en { color: var(--faint); }
+
+.hero-name {
+  font-size: clamp(2.6rem, 6.5vw, 4.4rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: 0.01em;
+  background: linear-gradient(120deg, #ffffff 0%, #cfe0ff 45%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 18px;
+}
+.hero-name-en {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.34em;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--klein-bright);
+  -webkit-text-fill-color: var(--klein-bright);
+  margin-top: 8px;
+}
+
+.hero-tagline {
+  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+  color: var(--text);
+  max-width: 34em;
+  margin-bottom: 8px;
+}
+.hero-tagline .en { display: block; margin-top: 6px; font-size: 0.62em; }
+
+.tag-list { display: flex; gap: 10px; flex-wrap: wrap; margin: 26px 0; }
+/* 首屏关键词标签 = 克莱因蓝玻璃小片 */
+.tag {
+  font-size: 0.85rem;
+  padding: 7px 16px;
+  border-radius: 999px;
+  color: #d6e4ff;
+  background: linear-gradient(150deg, rgba(122, 170, 255, 0.18), rgba(255, 255, 255, 0.03)), rgba(0, 47, 167, 0.24);
+  border: 1px solid rgba(94, 150, 255, 0.38);
+  box-shadow: var(--glass-inner), 0 8px 22px rgba(0, 47, 167, 0.26);
+  backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-sat));
+}
+.tag .en { display: block; font-size: 0.68em; color: var(--faint); }
+
+.hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 26px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+}
+.btn .en { font-size: 0.72em; }
+/* 注：V2.1 起首屏「联系我」改用 .btn-shimmer，本规则暂未被页面引用，保留备用 */
+.btn-primary {
+  color: #fff;
+  background: linear-gradient(135deg, var(--klein) 0%, var(--klein-bright) 100%);
+  border: 1px solid rgba(53, 214, 255, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 47, 167, 0.5);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(47, 107, 255, 0.6); }
+/* 次按钮 = 中性玻璃片 */
+.btn-ghost {
+  color: var(--text);
+  border: 1px solid var(--glass-border);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.02)), rgba(12, 18, 38, 0.42);
+  box-shadow: var(--glass-inner);
+  backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-sat));
+}
+.btn-ghost:hover {
+  border-color: var(--glass-border-hover);
+  background: linear-gradient(150deg, rgba(94, 150, 255, 0.20), rgba(47, 107, 255, 0.08)), rgba(14, 22, 46, 0.48);
+  box-shadow: var(--glass-inner), 0 12px 30px rgba(0, 47, 167, 0.35);
+  transform: translateY(-2px);
+}
+
+/* ============================================================
+   Shimmer Button —— Magic UI「shimmer-button」的原生 CSS 移植
+   用于首屏主按钮「联系我 / Contact Me」
+   ------------------------------------------------------------
+   层级结构（自下而上）：
+     .shimmer-spark  光带层       z-index:-30  blur(2px)  container-type:size
+       └ .shimmer-spark-slide     水平滑动（cqw 单位）
+         └ .shimmer-spark-beam    conic-gradient 光带 + 自旋
+     .btn-label       文字（普通流内容，天然在负 z-index 之上）
+     .shimmer-highlight 内阴影高光
+     .shimmer-backdrop  内缩 --cut 的遮罩  z-index:-20
+   原理：光带在按钮外圈自旋，遮罩盖住中间，只让边缘 --cut 宽的一圈透出扫光。
+   ============================================================ */
+.btn-shimmer {
+  --spread: 90deg;            /* 光带张角 */
+  --shimmer-color: #ffffff;   /* 扫光颜色 */
+  --radius: 12px;             /* 圆角（官方默认 100px = 胶囊形） */
+  --speed: 3s;                /* 扫光一轮周期 */
+  --cut: 0.1em;               /* 边缘光带可见宽度（官方默认 0.05em，此处略放大更易看清） */
+  --bg: linear-gradient(135deg, var(--klein) 0%, var(--klein-bright) 100%);
+  position: relative;
+  z-index: 0;                 /* 建立层叠上下文，负 z-index 子层才不会被页面背景盖住 */
+  overflow: hidden;
+  white-space: nowrap;
+  color: #fff;
+  border-radius: var(--radius);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg);
+  box-shadow: 0 10px 30px rgba(0, 47, 167, 0.5);
+  transform: translateZ(0);
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+.btn-shimmer:hover { transform: translateY(-2px) translateZ(0); box-shadow: 0 16px 40px rgba(47, 107, 255, 0.6); }
+.btn-shimmer:active { transform: translateY(1px) translateZ(0); }
+
+/* spark 容器：同时是 cqw / cqh 容器查询的参照 */
+.shimmer-spark {
+  position: absolute;
+  inset: 0;
+  z-index: -30;
+  overflow: visible;
+  filter: blur(2px);
+  container-type: size;
+  pointer-events: none;
+}
+.shimmer-spark-slide {
+  position: absolute;
+  inset: 0;
+  aspect-ratio: 1;
+  height: 100cqh;
+  animation: shimmer-slide var(--speed) ease-in-out infinite alternate;
+}
+.shimmer-spark-beam {
+  position: absolute;
+  inset: -100%;
+  width: auto;
+  background: conic-gradient(
+    from calc(270deg - (var(--spread) * 0.5)),
+    transparent 0,
+    var(--shimmer-color) var(--spread),
+    transparent var(--spread)
+  );
+  animation: spin-around calc(var(--speed) * 2) infinite linear;
+}
+
+/* 内阴影高光：按钮下半部的反光感 */
+.shimmer-highlight {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  box-shadow: inset 0 -8px 10px rgba(255, 255, 255, 0.12);
+  transform: translateZ(0);
+  transition: box-shadow 0.3s ease-in-out;
+  pointer-events: none;
+}
+.btn-shimmer:hover .shimmer-highlight { box-shadow: inset 0 -6px 10px rgba(255, 255, 255, 0.25); }
+.btn-shimmer:active .shimmer-highlight { box-shadow: inset 0 -10px 10px rgba(255, 255, 255, 0.25); }
+
+/* 中间遮罩：内缩 --cut，仅露出边缘那一圈光带 */
+.shimmer-backdrop {
+  position: absolute;
+  inset: var(--cut);
+  z-index: -20;
+  border-radius: var(--radius);
+  background: var(--bg);
+  pointer-events: none;
+}
+
+@keyframes shimmer-slide {
+  to { transform: translate(calc(100cqw - 100%), 0); }
+}
+@keyframes spin-around {
+  0%       { transform: translateZ(0) rotate(0deg); }
+  15%, 35% { transform: translateZ(0) rotate(90deg); }
+  65%, 85% { transform: translateZ(0) rotate(270deg); }
+  100%     { transform: translateZ(0) rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-spark-slide,
+  .shimmer-spark-beam { animation: none; }
+}
+
+/* 头像 */
+.hero-avatar { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.avatar-frame {
+  width: 220px; height: 220px;
+  border-radius: 28px;
+  padding: 6px;
+  background: linear-gradient(140deg, var(--klein), var(--klein-bright) 55%, var(--accent));
+  box-shadow: 0 20px 60px rgba(0, 47, 167, 0.55);
+  position: relative;
+}
+.avatar-frame::after {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  border-radius: 36px;
+  border: 1px dashed rgba(47, 107, 255, 0.35);
+  pointer-events: none;
+}
+/* 头像占位面板 = 玻璃面板（模糊外框的蓝色渐变，形成磨砂蓝底，同时压暗保证「SP」对比度） */
+.avatar-placeholder {
+  width: 100%; height: 100%;
+  border-radius: 22px;
+  background:
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 10px, transparent 10px 20px),
+    linear-gradient(160deg, rgba(10, 19, 48, 0.78), rgba(6, 10, 24, 0.86));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: var(--glass-inner);
+  backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-sat));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.avatar-initials {
+  font-family: var(--font-mono);
+  font-size: 3.4rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--klein-bright);
+  text-shadow: 0 0 24px rgba(47, 107, 255, 0.7);
+}
+.avatar-note { font-size: 0.78rem; color: var(--faint); }
+
+/* 状态徽章 = 中性玻璃胶囊 */
+.avatar-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)), rgba(12, 18, 38, 0.42);
+  box-shadow: var(--glass-inner);
+  backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-sat));
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #35d6a0;
+  box-shadow: 0 0 10px #35d6a0;
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 26px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--faint);
+  letter-spacing: 0.14em;
+}
+.scroll-arrow {
+  width: 20px; height: 20px;
+  border-right: 2px solid var(--klein-bright);
+  border-bottom: 2px solid var(--klein-bright);
+  transform: rotate(45deg);
+  animation: bounce 1.6s infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: rotate(45deg) translate(0, 0); opacity: 0.5; }
+  50% { transform: rotate(45deg) translate(4px, 4px); opacity: 1; }
+}
+
+/* ---------- 关于 ---------- */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.about-card { padding: 30px; }
+.about-card::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 24px; bottom: 24px;
+  width: 3px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--klein-bright), var(--accent));
+}
+.about-cn { font-size: 1.05rem; margin-bottom: 16px; }
+.about-en { font-size: 0.9rem; line-height: 1.8; }
+
+.about-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.fact { padding: 18px; }
+.fact-label { font-size: 0.75rem; color: var(--faint); letter-spacing: 0.08em; margin-bottom: 6px; }
+.fact-value { font-size: 0.92rem; color: var(--text); }
+.fact-value .en { display: block; font-size: 0.72rem; }
+
+/* ---------- 技能 ---------- */
+.skill-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+.skill-card { padding: 26px; }
+.skill-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.skill-icon {
+  width: 44px; height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fff;
+  background: linear-gradient(135deg, var(--klein), var(--klein-bright));
+  box-shadow: 0 8px 22px rgba(0, 47, 167, 0.45);
+}
+.skill-name { font-weight: 700; font-size: 1.05rem; }
+.skill-desc { font-size: 0.85rem; color: var(--muted); margin-bottom: 16px; }
+.skill-desc .en { display: block; font-size: 0.72rem; }
+/* 进度槽 = 玻璃凹槽（内阴影让槽“凹”下去，与玻璃卡片的“凸”形成层次） */
+.skill-bar {
+  height: 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 2px rgba(2, 5, 16, 0.55), inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+.skill-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--klein-bright), var(--accent));
+}
+.note { margin-top: 18px; font-size: 0.8rem; color: var(--faint); }
+
+/* ---------- 项目 ---------- */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+.project-card { display: flex; flex-direction: column; gap: 10px; }
+.project-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+.project-badge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.project-badge .en { display: inline; font-size: 1em; color: inherit; }
+.project-title { font-size: 1.1rem; font-weight: 700; }
+.project-desc { font-size: 0.88rem; color: var(--muted); }
+.project-meta { font-family: var(--font-mono); font-size: 0.75rem; color: var(--faint); margin-top: auto; }
+
+.honor-card { margin-top: 18px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.honor-label { font-weight: 700; font-size: 0.95rem; }
+
+/* ---------- 兴趣 ---------- */
+.interest-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+.interest-card { text-align: left; padding: 26px; }
+/* 兴趣图标块 = 克莱因蓝玻璃方块 */
+.interest-emoji {
+  display: inline-grid;
+  place-items: center;
+  width: 48px; height: 48px;
+  margin-bottom: 14px;
+  border-radius: 14px;
+  font-size: 1.5rem;
+  color: var(--accent);
+  background: linear-gradient(150deg, rgba(122, 170, 255, 0.16), rgba(255, 255, 255, 0.03)), rgba(0, 47, 167, 0.26);
+  border: 1px solid rgba(94, 150, 255, 0.38);
+  box-shadow: var(--glass-inner);
+  backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-sat));
+}
+.interest-card h3 { font-size: 1.05rem; margin-bottom: 8px; }
+.interest-card h3 .en { display: block; font-size: 0.7rem; }
+.interest-card p { font-size: 0.88rem; color: var(--muted); }
+.interest-card p .en { display: block; font-size: 0.76rem; margin-top: 4px; }
+
+/* ---------- 联系 ---------- */
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+.contact-card { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.contact-label { font-size: 0.78rem; letter-spacing: 0.1em; color: var(--faint); text-transform: uppercase; }
+.contact-value { font-family: var(--font-mono); font-size: 1rem; color: var(--accent); word-break: break-all; }
+a.contact-value:hover { text-decoration: underline; }
+
+/* 复制按钮 = 中性玻璃片 */
+.copy-btn {
+  margin-top: 4px;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--text);
+  padding: 8px 16px;
+  border-radius: 9px;
+  border: 1px solid var(--glass-border);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.02)), rgba(12, 18, 38, 0.42);
+  box-shadow: var(--glass-inner);
+  backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-sat));
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.copy-btn:hover {
+  border-color: var(--glass-border-hover);
+  background: linear-gradient(150deg, rgba(94, 150, 255, 0.20), rgba(47, 107, 255, 0.08)), rgba(14, 22, 46, 0.48);
+  box-shadow: var(--glass-inner), 0 12px 30px rgba(0, 47, 167, 0.35);
+}
+.copy-btn.done { color: #35d6a0; border-color: rgba(53, 214, 160, 0.5); }
+
+/* ---------- 页脚 ---------- */
+.footer {
+  border-top: 1px solid var(--border);
+  text-align: center;
+  padding: 34px 24px 44px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.footer-sub { margin-top: 8px; font-size: 0.78rem; color: var(--faint); }
+
+/* ============================================================
+   交互式网格背景 —— Magic UI「Interactive Grid Pattern」的原生 SVG 移植
+   作用范围：首屏（Hero）以外的全部区域（含页脚）
+   ------------------------------------------------------------
+   官方行为：指针停在某一格上 → 该格被填充高亮；
+             指针移开 → 该格缓慢淡出。
+             官方 Tailwind 类：
+               transition-all duration-100 ease-in-out not-[&:hover]:duration-1000
+             → 进入时 100ms 快速填充，离开时 1000ms 慢速淡出
+   本实现：方格由 script.V2.2.js 按容器尺寸动态生成，
+            高亮 = 给对应的 <rect> 切换 .is-hover 类（效果与官方一致）
+   V2.2 微调：在官方基础上增强了高亮的可见度 ——
+            填充更实（0.18 → 0.32）、描边提亮、并加两层 drop-shadow 辉光
+   ============================================================ */
+.igrid-layer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--hero-h, 100vh);   /* 自首屏下沿开始 —— 首屏保持原样不覆盖 */
+  bottom: 0;                   /* 一直到页面底部（含页脚） */
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;        /* 纯装饰层：不阻挡点击、不影响文字选择 */
+}
+
+.igrid {
+  display: block;
+  overflow: visible;           /* 宽度取整后略大于容器，由 .igrid-layer 裁掉 */
+}
+
+/* 方格：默认无填充，只有 1px 描边（沿用页面原有网格的克莱因蓝线条） */
+.igrid rect {
+  fill: transparent;
+  stroke: rgba(47, 107, 255, 0.05);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+  /* 指针离开：慢速淡出（官方 1000ms）。填充、描边、发光一起淡出 */
+  transition: fill 1s ease-in-out,
+              stroke 1s ease-in-out,
+              filter 1s ease-in-out;
+}
+
+/* 指针所在的那一格：克莱因蓝填充 + 描边提亮 + 双层辉光
+   （官方为 gray-300/30 的纯色填充；此处按需求增强高亮并加发光）
+   亮度已按反馈调低：填充、描边与两层辉光的 alpha 都收敛，
+   保留「有发光」的观感，但不刺眼 */
+.igrid rect.is-hover {
+  fill: rgba(47, 107, 255, 0.2);
+  stroke: rgba(110, 160, 245, 0.55);
+  /* 内层紧贴格子的亮晕 + 外层更大范围的柔光 */
+  filter: drop-shadow(0 0 6px rgba(110, 165, 255, 0.55))
+          drop-shadow(0 0 16px rgba(47, 107, 255, 0.32));
+  transition-duration: 0.1s;         /* 指针进入：快速点亮（官方 100ms） */
+}
+
+/* 无障碍：偏好减弱动效时不做淡入淡出，高亮瞬时切换 */
+.igrid-no-motion .igrid rect { transition: none; }
+
+/* ============================================================
+   Glassmorphism 兜底
+   浏览器不支持 backdrop-filter 时（老 Firefox / 部分旧内核），
+   模糊会失效 → 玻璃会变成「几乎全透明」，文字对比度不足；
+   这里把玻璃底色加实，保证可读性优先。
+   ============================================================ */
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  .card { background: rgba(11, 17, 34, 0.94); }
+  .nav { background: rgba(6, 10, 22, 0.94); }
+  .nav.scrolled { background: rgba(6, 10, 22, 0.97); }
+  .tag { background: rgba(0, 47, 167, 0.55); }
+  .interest-emoji { background: rgba(0, 47, 167, 0.5); }
+  .btn-ghost,
+  .copy-btn,
+  .avatar-status,
+  .placeholder-tag { background: rgba(12, 18, 38, 0.9); }
+  .avatar-placeholder { background: linear-gradient(160deg, #0a1330, #060a18); }
+}
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 940px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+  .hero-avatar { order: -1; align-items: flex-start; }
+  .avatar-frame { width: 170px; height: 170px; }
+  .avatar-initials { font-size: 2.6rem; }
+  .about-grid { grid-template-columns: 1fr; }
+  .skill-grid,
+  .project-grid,
+  .interest-grid,
+  .contact-grid { grid-template-columns: 1fr 1fr; }
+  .nav-links { display: none; }
+}
+
+@media (max-width: 600px) {
+  .section { padding: 60px 18px; }
+  .hero { padding: calc(var(--nav-h) + 34px) 18px 50px; }
+  .nav-inner { padding: 0 16px; }
+  .brand-text .en { display: none; }
+  .skill-grid,
+  .project-grid,
+  .interest-grid,
+  .contact-grid,
+  .about-facts { grid-template-columns: 1fr; }
+  .btn { width: 100%; justify-content: center; }
+  .hero-actions { flex-direction: column; }
+  .avatar-frame { width: 150px; height: 150px; }
+}

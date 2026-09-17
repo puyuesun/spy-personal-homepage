@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>孙璞月 Spy | 个人主页 V3</title>
+  <meta name="description" content="孙璞月（Spy）的个人主页 — 天津大学-香港理工大学深圳未来技术学院，智能医学工程（脑机接口方向）大一学生。" />
+  <meta name="theme-color" content="#05070f" />
+  <script>
+    (function () {
+      try {
+        var savedTheme = localStorage.getItem("spy-theme");
+        document.documentElement.setAttribute("data-theme", savedTheme === "light" ? "light" : "dark");
+      } catch (error) {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="icon" href="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23050a18'/%3E%3Ccircle cx='32' cy='32' r='15' fill='none' stroke='%232f6bff' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='5' fill='%238ab4ff'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="style.V3.css" />
+</head>
+<body>
+  <!-- 背景装饰 -->
+  <!-- 首屏静态网格（V2.2 起仅覆盖首屏区域，保持 V1/V2.1 的首屏观感不变） -->
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow" aria-hidden="true"></div>
+  <!-- 首屏以外区域的「交互式网格背景」
+       （参考 Magic UI Interactive Grid Pattern，改用原生 SVG + 指针追踪实现；
+        SVG 内的方格由 script.V3.js 按容器尺寸动态生成） -->
+  <div class="igrid-layer" aria-hidden="true">
+    <svg class="igrid" id="interactiveGrid" xmlns="http://www.w3.org/2000/svg" focusable="false"></svg>
+  </div>
+
+  <!-- 顶部导航 -->
+  <header class="nav" id="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top">
+        <span class="brand-dot"></span>
+        <span class="brand-text">孙璞月 <span class="en">Spy</span></span>
+      </a>
+
+      <nav class="nav-links" aria-label="主导航">
+        <a href="#about" class="nav-link">关于 <span class="en">About</span></a>
+        <a href="#skills" class="nav-link">技能 <span class="en">Skills</span></a>
+        <a href="#projects" class="nav-link">项目 <span class="en">Projects</span></a>
+        <a href="#interests" class="nav-link">兴趣 <span class="en">Interests</span></a>
+        <a href="#contact" class="nav-link">联系 <span class="en">Contact</span></a>
+      </nav>
+
+      <!-- V2.3：右上角主题开关（原生移植 Uiverse "Switch" by RiccardoRapelli）
+           来源：https://uiverse.io/RiccardoRapelli/jolly-chicken-91
+           MIT License；保留原组件的太阳、月亮、云和星空结构，选择器改为项目内命名。 -->
+      <label class="theme-switch" for="themeSwitch" title="切换深色 / 浅色模式">
+        <input id="themeSwitch" type="checkbox" role="switch" aria-label="切换深色 / 浅色模式" aria-checked="true" checked />
+        <span class="slider round">
+          <span class="sun-moon">
+            <svg id="theme-moon-dot-1" class="moon-dot" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="theme-moon-dot-2" class="moon-dot" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="theme-moon-dot-3" class="moon-dot" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="theme-light-ray-1" class="light-ray" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="theme-light-ray-2" class="light-ray" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="theme-light-ray-3" class="light-ray" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="theme-cloud-1" class="cloud-dark" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="theme-cloud-2" class="cloud-dark" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="theme-cloud-3" class="cloud-dark" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="theme-cloud-4" class="cloud-light" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="theme-cloud-5" class="cloud-light" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="theme-cloud-6" class="cloud-light" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50"></circle></svg>
+          </span>
+          <span class="stars">
+            <svg id="theme-star-1" class="star" viewBox="0 0 20 20" aria-hidden="true"><path d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"></path></svg>
+            <svg id="theme-star-2" class="star" viewBox="0 0 20 20" aria-hidden="true"><path d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"></path></svg>
+            <svg id="theme-star-3" class="star" viewBox="0 0 20 20" aria-hidden="true"><path d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"></path></svg>
+            <svg id="theme-star-4" class="star" viewBox="0 0 20 20" aria-hidden="true"><path d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"></path></svg>
+          </span>
+        </span>
+      </label>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- 首屏 Hero -->
+    <section class="hero" id="hero">
+      <!-- 首屏 3D 粒子背景（参考 Magic UI Floating 3D Particles，原生 Canvas 实现） -->
+      <div class="hero-bg" aria-hidden="true">
+        <canvas class="hero-particles" id="heroParticles"></canvas>
+        <div class="hero-bg-fade"></div>
+      </div>
+
+      <div class="hero-inner">
+        <div class="hero-text">
+          <p class="eyebrow">
+            <span class="eyebrow-line"></span>
+            TJU-PolyU Shenzhen · 智能医学工程 <span class="en">Intelligent Medical Engineering</span>
+          </p>
+
+          <h1 class="hero-name">
+            孙璞月
+            <span class="hero-name-en">Spy</span>
+          </h1>
+
+          <p class="hero-tagline">
+            一个活力满满、热爱探索的大一学生
+            <span class="en">A curious, energetic first-year student who loves to explore.</span>
+          </p>
+
+          <ul class="tag-list" aria-label="关键词">
+            <li class="tag">AI</li>
+            <li class="tag">摄影 <span class="en">Photography</span></li>
+            <li class="tag">社交 <span class="en">Social</span></li>
+          </ul>
+
+          <div class="hero-actions">
+            <!-- 首屏「联系我」：Shimmer Button（Magic UI 组件原生移植，边框扫光） -->
+            <a class="btn btn-shimmer" href="#contact">
+              <span class="shimmer-spark" aria-hidden="true">
+                <span class="shimmer-spark-slide">
+                  <span class="shimmer-spark-beam"></span>
+                </span>
+              </span>
+              <span class="btn-label">联系我 <span class="en">Contact Me</span></span>
+              <span class="shimmer-highlight" aria-hidden="true"></span>
+              <span class="shimmer-backdrop" aria-hidden="true"></span>
+            </a>
+            <a class="btn btn-ghost" href="#projects">查看项目 <span class="en">View Projects</span></a>
+          </div>
+        </div>
+
+        <div class="hero-avatar">
+          <div class="avatar-frame">
+            <!-- 头像占位符：后续替换为真实照片 -->
+            <div class="avatar-placeholder" aria-label="头像占位符">
+              <span class="avatar-initials">SP</span>
+              <span class="avatar-note">头像占位 <span class="en">Avatar</span></span>
+            </div>
+          </div>
+          <div class="avatar-status">
+            <span class="status-dot"></span>
+            大一在读 <span class="en">Year 1</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="scroll-hint" aria-hidden="true">
+        <span>向下滚动 <span class="en">Scroll</span></span>
+        <span class="scroll-arrow"></span>
+      </div>
+    </section>
+
+    <!-- 关于 About -->
+    <section class="section" id="about">
+      <div class="section-head">
+        <p class="section-index">01</p>
+        <h2 class="section-title">关于我 <span class="en">About Me</span></h2>
+        <p class="section-sub">了解我是一个怎样的人 <span class="en">Who I am</span></p>
+      </div>
+
+      <div class="about-grid">
+        <div class="card about-card">
+          <p class="about-cn">
+            你好，我是孙璞月，英文名 Spy。我就读于天津大学-香港理工大学深圳未来技术学院，
+            专业是智能医学工程（脑机接口方向），目前大一。我是一个活力满满、热爱探索的人，
+            对 AI、摄影和社交充满兴趣，希望用技术连接人与世界。
+          </p>
+          <p class="about-en en">
+            Hi, I'm Spy (Sun Puyue). I'm a first-year student majoring in Intelligent Medical
+            Engineering (Brain-Computer Interface track) at the TJU-PolyU Shenzhen Institute.
+            Energetic and curious, I'm passionate about AI, photography and connecting with people,
+            and I hope to use technology to connect people with the world.
+          </p>
+        </div>
+
+        <div class="about-facts">
+          <div class="card fact">
+            <p class="fact-label">学校 <span class="en">School</span></p>
+            <p class="fact-value">天津大学-香港理工大学深圳未来技术学院</p>
+          </div>
+          <div class="card fact">
+            <p class="fact-label">专业 <span class="en">Major</span></p>
+            <p class="fact-value">智能医学工程（脑机接口方向）</p>
+          </div>
+          <div class="card fact">
+            <p class="fact-label">年级 <span class="en">Year</span></p>
+            <p class="fact-value">大一 <span class="en">First year</span></p>
+          </div>
+          <div class="card fact">
+            <p class="fact-label">状态 <span class="en">Status</span></p>
+            <p class="fact-value">正在学习与探索中 <span class="en">Learning & exploring</span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 技能 Skills -->
+    <section class="section" id="skills">
+      <div class="section-head">
+        <p class="section-index">02</p>
+        <h2 class="section-title">技能 <span class="en">Skills</span></h2>
+        <p class="section-sub">我正在使用的工具与语言 <span class="en">Tools & languages I use</span></p>
+      </div>
+
+      <div class="skill-grid">
+        <div class="card skill-card">
+          <div class="skill-top">
+            <span class="skill-icon">JS</span>
+            <span class="skill-name">JavaScript</span>
+          </div>
+          <p class="skill-desc">网页交互与前端逻辑 <span class="en">Web interaction & front-end logic</span></p>
+          <div class="skill-bar"><span style="width: 65%"></span></div>
+        </div>
+
+        <div class="card skill-card">
+          <div class="skill-top">
+            <span class="skill-icon">Py</span>
+            <span class="skill-name">Python</span>
+          </div>
+          <p class="skill-desc">数据处理与 AI 入门 <span class="en">Data processing & AI basics</span></p>
+          <div class="skill-bar"><span style="width: 60%"></span></div>
+        </div>
+
+        <div class="card skill-card">
+          <div class="skill-top">
+            <span class="skill-icon">&lt;/&gt;</span>
+            <span class="skill-name">HTML</span>
+          </div>
+          <p class="skill-desc">网页结构与内容组织 <span class="en">Page structure & content</span></p>
+          <div class="skill-bar"><span style="width: 70%"></span></div>
+        </div>
+      </div>
+
+      <p class="note">技能熟练度为自我评估，后续版本会持续更新。 <span class="en">Self-assessed levels, to be updated in later versions.</span></p>
+    </section>
+
+    <!-- 项目 Projects -->
+    <section class="section" id="projects">
+      <div class="section-head">
+        <p class="section-index">03</p>
+        <h2 class="section-title">项目与经历 <span class="en">Projects & Experience</span></h2>
+        <p class="section-sub">我正在做和做过的事 <span class="en">Things I'm working on</span></p>
+      </div>
+
+      <div class="project-grid">
+        <article class="card project-card">
+          <div class="project-head">
+            <span class="project-badge">项目 01 <span class="en">Project 01</span></span>
+            <span class="placeholder-tag">占位 <span class="en">Placeholder</span></span>
+          </div>
+          <h3 class="project-title placeholder-text">项目名称待补充</h3>
+          <p class="project-desc placeholder-text">项目简介待补充：做了什么、用了什么技术、取得了什么结果。</p>
+          <p class="project-meta placeholder-text">时间 / 角色 / 链接待补充</p>
+        </article>
+
+        <article class="card project-card">
+          <div class="project-head">
+            <span class="project-badge">项目 02 <span class="en">Project 02</span></span>
+            <span class="placeholder-tag">占位 <span class="en">Placeholder</span></span>
+          </div>
+          <h3 class="project-title placeholder-text">项目名称待补充</h3>
+          <p class="project-desc placeholder-text">项目简介待补充：做了什么、用了什么技术、取得了什么结果。</p>
+          <p class="project-meta placeholder-text">时间 / 角色 / 链接待补充</p>
+        </article>
+
+        <article class="card project-card">
+          <div class="project-head">
+            <span class="project-badge">项目 03 <span class="en">Project 03</span></span>
+            <span class="placeholder-tag">占位 <span class="en">Placeholder</span></span>
+          </div>
+          <h3 class="project-title placeholder-text">项目名称待补充</h3>
+          <p class="project-desc placeholder-text">项目简介待补充：做了什么、用了什么技术、取得了什么结果。</p>
+          <p class="project-meta placeholder-text">时间 / 角色 / 链接待补充</p>
+        </article>
+      </div>
+
+      <div class="card honor-card">
+        <p class="honor-label">奖项 / 荣誉 <span class="en">Honors & Awards</span></p>
+        <p class="placeholder-text">待补充 <span class="en">To be added</span></p>
+      </div>
+    </section>
+
+    <!-- 兴趣 Interests -->
+    <section class="section" id="interests">
+      <div class="section-head">
+        <p class="section-index">04</p>
+        <h2 class="section-title">兴趣 <span class="en">Interests</span></h2>
+        <p class="section-sub">课堂之外的我 <span class="en">Beyond the classroom</span></p>
+      </div>
+
+      <div class="interest-grid">
+        <div class="card interest-card">
+          <span class="interest-emoji" aria-hidden="true">♪</span>
+          <h3>音乐 <span class="en">Music</span></h3>
+          <p>用音乐放松与获取灵感。 <span class="en">Music helps me relax and find inspiration.</span></p>
+        </div>
+        <div class="card interest-card">
+          <span class="interest-emoji" aria-hidden="true">◉</span>
+          <h3>摄影 <span class="en">Photography</span></h3>
+          <p>用镜头记录生活里的光与瞬间。 <span class="en">Capturing light and moments in life.</span></p>
+        </div>
+        <div class="card interest-card">
+          <span class="interest-emoji" aria-hidden="true">◎</span>
+          <h3>社交 <span class="en">Social</span></h3>
+          <p>喜欢认识新朋友、交流新想法。 <span class="en">Love meeting people and exchanging ideas.</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 联系 Contact -->
+    <section class="section" id="contact">
+      <div class="section-head">
+        <p class="section-index">05</p>
+        <h2 class="section-title">联系我 <span class="en">Contact Me</span></h2>
+        <p class="section-sub">很高兴认识你 <span class="en">Nice to meet you</span></p>
+      </div>
+
+      <div class="contact-grid">
+        <div class="card contact-card">
+          <p class="contact-label">邮箱 <span class="en">Email</span></p>
+          <a class="contact-value" href="mailto:spy_0809@tju.edu.cn">spy_0809@tju.edu.cn</a>
+          <button class="copy-btn" id="copyEmail" data-email="spy_0809@tju.edu.cn" type="button">
+            复制邮箱 <span class="en">Copy email</span>
+          </button>
+        </div>
+
+        <div class="card contact-card">
+          <p class="contact-label">GitHub</p>
+          <span class="contact-value placeholder-text">待补充 <span class="en">To be added</span></span>
+        </div>
+
+        <div class="card contact-card">
+          <p class="contact-label">简历 <span class="en">Resume</span></p>
+          <span class="contact-value placeholder-text">待补充 <span class="en">To be added</span></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© <span id="year">2026</span> 孙璞月 <span class="en">Spy</span> · 个人主页 V3</p>
+    <p class="footer-sub">使用 HTML / CSS / JavaScript 构建 · 版本 V3 <span class="en">Built with HTML / CSS / JavaScript · Version V3</span></p>
+  </footer>
+
+
+
+  <!-- V3 反馈入口：原生移植 Uiverse fresh-goose-83，并按要求改成站内克莱因蓝体系 -->
+  <button class="feedback-fab" id="feedbackFab" type="button" aria-haspopup="dialog" aria-controls="feedbackDialog" aria-label="打开意见反馈">
+    <span class="feedback-fab__text" aria-hidden="true">
+      <span style="--index: 0;">F</span><span style="--index: 1;">E</span><span style="--index: 2;">E</span><span style="--index: 3;">D</span>
+      <span style="--index: 4;">B</span><span style="--index: 5;">A</span><span style="--index: 6;">C</span><span style="--index: 7;">K</span>
+      <span style="--index: 8;">•</span><span style="--index: 9;">F</span><span style="--index: 10;">E</span><span style="--index: 11;">E</span>
+      <span style="--index: 12;">D</span><span style="--index: 13;">B</span><span style="--index: 14;">A</span><span style="--index: 15;">C</span>
+      <span style="--index: 16;">K</span><span style="--index: 17;">•</span>
+    </span>
+    <span class="feedback-fab__circle">
+      <span class="feedback-fab__icon feedback-fab__icon--arrow" aria-hidden="true">↗</span>
+      <span class="feedback-fab__icon feedback-fab__icon--label" aria-hidden="true">意见反馈</span>
+    </span>
+  </button>
+
+  <!-- V3 反馈弹窗：结构参考 quiet-turkey-90，背景参考 brave-dog-61，输入框参考 curvy-earwig-22 -->
+  <dialog class="feedback-dialog" id="feedbackDialog" aria-labelledby="feedbackTitle">
+    <div class="feedback-card">
+      <button class="feedback-close" id="feedbackClose" type="button" aria-label="关闭意见反馈">×</button>
+
+      <header class="feedback-head">
+        <p class="feedback-kicker">FEEDBACK</p>
+        <h2 class="feedback-title" id="feedbackTitle">意见反馈 <span class="en">Share your feedback</span></h2>
+        <p class="feedback-sub">你的意见会帮助我继续改进这个页面。<br /><span class="en">Your feedback helps me improve this page.</span></p>
+      </header>
+
+      <form class="feedback-form" id="feedbackForm" novalidate>
+        <label class="feedback-label" for="feedbackMessage">
+          反馈内容 <span class="en">Message</span>
+          <span class="feedback-required">必填 Required</span>
+        </label>
+
+        <div class="feedback-input-shell" id="feedbackInputShell">
+          <div class="feedback-input-glow" aria-hidden="true"></div>
+          <div class="feedback-input-main">
+            <textarea id="feedbackMessage" name="message" maxlength="1000" required placeholder="写下你的意见或建议… / Write your feedback…" aria-describedby="feedbackCount feedbackStatus"></textarea>
+          </div>
+        </div>
+
+        <div class="feedback-meta">
+          <span id="feedbackCount">0 / 1000</span>
+          <span>内容仅用于改进主页 / Used only to improve this site</span>
+        </div>
+
+        <p class="feedback-status" id="feedbackStatus" role="status" aria-live="polite"></p>
+
+        <button class="feedback-submit" id="feedbackSubmit" type="submit">
+          <span class="feedback-submit__text">提交反馈 <span class="en">Submit</span></span>
+          <span class="feedback-submit__icon" aria-hidden="true">↗</span>
+        </button>
+      </form>
+    </div>
+  </dialog>
+
+  <script src="config.V3.js"></script>
+  <script src="script.V3.js"></script>
+</body>
+</html>
