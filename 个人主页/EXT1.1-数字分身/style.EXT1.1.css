@@ -1180,7 +1180,14 @@ html[data-theme="light"] .igrid rect.is-hover {
 
 @media (max-width: 600px) {
   .section { padding: 60px 18px; }
-  .hero { padding: calc(var(--nav-h) + 34px) 18px 50px; }
+  .hero { padding: calc(var(--nav-h) + 34px) 18px 28px; }
+  .scroll-hint {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    margin: 26px auto 0;
+  }
   .nav-inner { padding: 0 16px; }
   .brand-text .en { display: none; }
   .skill-grid,
