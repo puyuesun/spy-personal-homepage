@@ -9,6 +9,42 @@
               "Switch" by RiccardoRapelli（MIT License）。
    ========================================================================== */
 
+
+/* ==========================================================================
+   EXT1.1 opening loader
+   - 至少显示 2 秒
+   - window.load 完成后淡出
+   ========================================================================== */
+(function () {
+  "use strict";
+  var splash = document.getElementById("siteSplash");
+  var root = document.documentElement;
+  if (!splash) {
+    root.classList.remove("splash-active");
+    return;
+  }
+  var started = Number(window.__ext11SplashStart) || performance.now();
+  var minimumMs = 2000;
+  var hiding = false;
+  function hide() {
+    if (hiding) return;
+    hiding = true;
+    var wait = Math.max(0, minimumMs - (performance.now() - started));
+    window.setTimeout(function () {
+      splash.classList.add("is-hidden");
+      root.classList.remove("splash-active");
+      window.setTimeout(function () {
+        if (splash.parentNode) splash.parentNode.removeChild(splash);
+      }, 450);
+    }, wait);
+  }
+  if (document.readyState === "complete") hide();
+  else window.addEventListener("load", hide, { once: true });
+  window.addEventListener("pageshow", function (event) {
+    if (event.persisted) hide();
+  });
+})();
+
 (function () {
   "use strict";
 
