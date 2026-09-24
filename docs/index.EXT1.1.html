@@ -7,6 +7,8 @@
   <meta name="description" content="孙璞月（Spy）的个人主页 — 天津大学-香港理工大学深圳未来技术学院，智能医学工程（脑机接口方向）大一学生。" />
   <meta name="theme-color" content="#05070f" />
   <script>
+    document.documentElement.classList.add("splash-active");
+    window.__ext11SplashStart = performance.now();
     (function () {
       try {
         var savedTheme = localStorage.getItem("spy-theme");
@@ -16,18 +18,33 @@
       }
     })();
   </script>
+  <style>
+    html.splash-active, html.splash-active body { overflow: hidden; }
+    #siteSplash { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; background: #05070f; opacity: 1; transition: opacity .4s ease; }
+    html[data-theme="light"] #siteSplash { background: #f4f8ff; }
+    #siteSplash.is-hidden { opacity: 0; pointer-events: none; }
+  </style>
+  <noscript><style>#siteSplash { display: none !important; } html.splash-active, html.splash-active body { overflow: auto !important; }</style></noscript>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="icon" href="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23050a18'/%3E%3Ccircle cx='32' cy='32' r='15' fill='none' stroke='%232f6bff' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='5' fill='%238ab4ff'/%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="style.EXT1.1.css?v=20260924b" />
+  <link rel="stylesheet" href="style.EXT1.1.css?v=20260924d" />
 </head>
 <body id="top">
+  <!-- EXT1.1 opening loader: Uiverse bright-lizard-8 by dexter-st (MIT License) -->
+  <div class="site-splash" id="siteSplash" role="status" aria-live="polite" aria-label="正在加载网站 Loading">
+    <div class="ext11-loader-wrapper" aria-hidden="true">
+      <span class="ext11-loader-letter">G</span><span class="ext11-loader-letter">e</span><span class="ext11-loader-letter">n</span><span class="ext11-loader-letter">e</span><span class="ext11-loader-letter">r</span><span class="ext11-loader-letter">a</span><span class="ext11-loader-letter">t</span><span class="ext11-loader-letter">i</span><span class="ext11-loader-letter">n</span><span class="ext11-loader-letter">g</span>
+      <div class="ext11-loader"></div>
+    </div>
+  </div>
+
   <!-- 背景装饰 -->
   <!-- 首屏静态网格（V2.2 起仅覆盖首屏区域，保持 V1/V2.1 的首屏观感不变） -->
   <div class="bg-grid" aria-hidden="true"></div>
   <div class="bg-glow" aria-hidden="true"></div>
   <!-- 首屏以外区域的「交互式网格背景」
        （参考 Magic UI Interactive Grid Pattern，改用原生 SVG + 指针追踪实现；
-        SVG 内的方格由 script.EXT1.1.js?v=20260924b 按容器尺寸动态生成） -->
+        SVG 内的方格由 script.EXT1.1.js?v=20260924d 按容器尺寸动态生成） -->
   <div class="igrid-layer" aria-hidden="true">
     <svg class="igrid" id="interactiveGrid" xmlns="http://www.w3.org/2000/svg" focusable="false"></svg>
   </div>
@@ -367,8 +384,8 @@
         <button class="twin-close" id="twinClose" type="button" aria-label="关闭数字分身">×</button>
         <div class="twin-avatar" id="twinAvatar" data-state="idle">
           <div class="twin-avatar__portrait">
-            <img class="twin-avatar__image twin-avatar__image--open" src="avatar_xiaoyue_open.EXT1.1.png?v=20260924b" alt="小月的 Q 版形象" draggable="false" />
-            <img class="twin-avatar__image twin-avatar__image--blink" src="avatar_xiaoyue_blink.EXT1.1.png?v=20260924b" alt="" aria-hidden="true" draggable="false" />
+            <img class="twin-avatar__image twin-avatar__image--open" src="avatar_xiaoyue_open.EXT1.1.png?v=20260924d" alt="小月的 Q 版形象" draggable="false" />
+            <img class="twin-avatar__image twin-avatar__image--blink" src="avatar_xiaoyue_blink.EXT1.1.png?v=20260924d" alt="" aria-hidden="true" draggable="false" />
             <div class="twin-avatar__thinking" aria-hidden="true"><i></i><i></i><i></i></div>
           </div>
           <div class="twin-avatar__status" id="twinAvatarStatus">在线 · 资料速答模式</div>
@@ -458,7 +475,7 @@
     </div>
   </dialog>
 
-  <script src="config.EXT1.1.js?v=20260924b"></script>
-  <script src="script.EXT1.1.js?v=20260924b"></script>
+  <script src="config.EXT1.1.js?v=20260924d"></script>
+  <script src="script.EXT1.1.js?v=20260924d"></script>
 </body>
 </html>

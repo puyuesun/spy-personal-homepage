@@ -20,6 +20,8 @@
 - 桌面对话框扩大为 440×700px，小月人物缩小到约 112px，消息区扩大到约 338px。
 - 深色与浅色主题的聊天输入文字、发送消息气泡均改为高对比度。
 - 联系区“简历”卡片改为“微信 WeChat / spy_0809”。
+- 新增纯色开屏动画，使用 Uiverse “Generating”加载器，最少显示 2 秒，页面全部加载后淡出。
+- 开屏背景跟随主题：深色模式 `#05070f`，浅色模式使用浅蓝色 `#f4f8ff`，浅色模式文字为克莱因蓝。
 - 兴趣区“社交”图标改为与全站风格一致的线性双人拉手 SVG。
 - 同步 `docs/`，不创建快照，不影响 V4。
 
@@ -45,6 +47,8 @@
 | `screenshot_EXT1.1_chat_dark.png` | 深色弹窗截图 |
 | `screenshot_EXT1.1_chat_light.png` | 浅色弹窗截图 |
 | `screenshot_EXT1.1_mobile.png` | 390px 移动端截图 |
+| `screenshot_EXT1.1_splash.png` | 深色开屏加载动画截图 |
+| `screenshot_EXT1.1_splash_light.png` | 浅色开屏加载动画截图 |
 
 ---
 

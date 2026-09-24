@@ -2173,3 +2173,64 @@ html[data-theme="light"] .twin-avatar__status { color: var(--klein); }
   .twin-send,
   .twin-suggestion { transition: none; }
 }
+/* EXT1.1 opening loader: Uiverse bright-lizard-8 by dexter-st (MIT License) */
+.site-splash { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; background: #05070f; opacity: 1; transition: opacity .4s ease; }
+.site-splash.is-hidden { opacity: 0; pointer-events: none; }
+html[data-theme="light"] .site-splash { background: #f4f8ff; }
+html[data-theme="light"] .ext11-loader-wrapper { color: #002fa7; }
+
+.ext11-loader-wrapper {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  font-size: 1.2em;
+  font-weight: 300;
+  letter-spacing: .015em;
+  user-select: none;
+}
+.ext11-loader {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  animation: ext11-loader-rotate 2s linear infinite;
+}
+@keyframes ext11-loader-rotate {
+  0% { transform: rotate(90deg); box-shadow: 0 10px 20px 0 #fff inset, 0 20px 30px 0 #ad5fff inset, 0 60px 60px 0 #471eec inset; }
+  50% { transform: rotate(270deg); box-shadow: 0 10px 20px 0 #fff inset, 0 20px 10px 0 #d60a47 inset, 0 40px 60px 0 #311e80 inset; }
+  100% { transform: rotate(450deg); box-shadow: 0 10px 20px 0 #fff inset, 0 20px 30px 0 #ad5fff inset, 0 60px 60px 0 #471eec inset; }
+}
+.ext11-loader-letter {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  opacity: .4;
+  animation: ext11-loader-letter 2s infinite;
+}
+.ext11-loader-letter:nth-child(1) { animation-delay: 0s; }
+.ext11-loader-letter:nth-child(2) { animation-delay: .1s; }
+.ext11-loader-letter:nth-child(3) { animation-delay: .2s; }
+.ext11-loader-letter:nth-child(4) { animation-delay: .3s; }
+.ext11-loader-letter:nth-child(5) { animation-delay: .4s; }
+.ext11-loader-letter:nth-child(6) { animation-delay: .5s; }
+.ext11-loader-letter:nth-child(7) { animation-delay: .6s; }
+.ext11-loader-letter:nth-child(8) { animation-delay: .7s; }
+.ext11-loader-letter:nth-child(9) { animation-delay: .8s; }
+.ext11-loader-letter:nth-child(10) { animation-delay: .9s; }
+@keyframes ext11-loader-letter {
+  0%, 100% { opacity: .4; transform: translateY(0); }
+  20% { opacity: 1; transform: scale(1.15); }
+  40% { opacity: .7; transform: translateY(0); }
+}
+@media (max-width: 600px) {
+  .ext11-loader-wrapper { width: 144px; height: 144px; font-size: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-splash { transition: none; }
+  .ext11-loader,
+  .ext11-loader-letter { animation: none !important; }
+}
