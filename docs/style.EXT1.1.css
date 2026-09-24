@@ -2176,6 +2176,9 @@ html[data-theme="light"] .twin-avatar__status { color: var(--klein); }
 /* EXT1.1 opening loader: Uiverse bright-lizard-8 by dexter-st (MIT License) */
 .site-splash { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; background: #05070f; opacity: 1; transition: opacity .4s ease; }
 .site-splash.is-hidden { opacity: 0; pointer-events: none; }
+html[data-theme="light"] .site-splash { background: #f4f8ff; }
+html[data-theme="light"] .ext11-loader-wrapper { color: #002fa7; }
+
 .ext11-loader-wrapper {
   position: relative;
   width: 180px;
