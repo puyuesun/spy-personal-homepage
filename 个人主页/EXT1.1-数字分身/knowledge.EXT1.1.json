@@ -138,10 +138,13 @@
         "合作",
         "contact",
         "email",
-        "reach"
+        "reach",
+        "微信",
+        "微信号",
+        "wechat"
       ],
-      "zh": "可以通过公开邮箱 spy_0809@tju.edu.cn 联系我。",
-      "en": "You can reach me at spy_0809@tju.edu.cn."
+      "zh": "可以通过公开邮箱 spy_0809@tju.edu.cn 或微信 spy_0809 联系我。",
+      "en": "You can reach me at spy_0809@tju.edu.cn or on WeChat at spy_0809."
     },
     {
       "id": "age-city",
