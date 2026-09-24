@@ -11,7 +11,7 @@ window.SPY_TWIN_CONFIG = {
      https://mkqqhgymlcpkykckzhrh.supabase.co/functions/v1/twin-chat
      留空时自动使用本地资料速答，不会请求模型。 */
   endpoint: "https://mkqqhgymlcpkykckzhrh.supabase.co/functions/v1/twin-chat",
-  knowledgeUrl: "knowledge.EXT1.1.json?v=20260924e",
+  knowledgeUrl: "knowledge.EXT1.1.json?v=20260924f",
   turnstileSiteKey: "",
   requestTimeoutMs: 25000,
   maxInputLength: 500,
