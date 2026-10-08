@@ -134,6 +134,8 @@
   /* ---------- 4. 页脚年份 ---------- */
   var yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+
+
 })();
 
 /* ==========================================================================
@@ -569,6 +571,8 @@
     if (ro) ro.disconnect();
     if (io) io.disconnect();
   });
+
+
 })();
 
 /* ==========================================================================
@@ -774,6 +778,8 @@
     if (ro) ro.disconnect();
     if (heroRo) heroRo.disconnect();
   });
+
+
 })();
 
 
@@ -889,6 +895,8 @@
       submitBtn.classList.remove("is-loading");
     });
   });
+
+
 })();
 
 /* ==========================================================================
@@ -1423,4 +1431,65 @@
     mode: function () { return ENDPOINT && !state.forceFallback ? "live" : "fallback"; },
     messages: function () { return state.messages.slice(); }
   };
+})();
+
+/* V4 album viewer: native dialog, previous/next controls and thumbnails. */
+(function initAlbum() {
+  var dialog = document.getElementById("albumDialog");
+  var openButton = document.getElementById("albumOpen");
+  var closeButton = document.getElementById("albumClose");
+  var prevButton = document.getElementById("albumPrev");
+  var nextButton = document.getElementById("albumNext");
+  var photo = document.getElementById("albumPhoto");
+  var counter = document.getElementById("albumCounter");
+  var caption = document.getElementById("albumCaption");
+  var thumbs = Array.prototype.slice.call(document.querySelectorAll(".album-thumb"));
+  if (!dialog || !openButton || !photo || !thumbs.length) return;
+
+  var current = 0;
+
+  function itemAt(index) {
+    return thumbs[(index + thumbs.length) % thumbs.length];
+  }
+
+  function render(index) {
+    current = (index + thumbs.length) % thumbs.length;
+    var item = itemAt(current);
+    var total = thumbs.length;
+    photo.src = item.getAttribute("data-full");
+    photo.alt = item.getAttribute("data-alt") || ("相册照片 " + (current + 1));
+    counter.textContent = (current + 1) + " / " + total;
+    caption.innerHTML = "相册照片 " + String(current + 1).padStart(2, "0") + " <span class=\"en\">Album photo " + String(current + 1).padStart(2, "0") + "</span>";
+    thumbs.forEach(function (thumb, thumbIndex) {
+      var active = thumbIndex === current;
+      thumb.classList.toggle("is-active", active);
+      thumb.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+  }
+
+  function openAlbum() {
+    render(0);
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else dialog.setAttribute("open", "");
+    window.setTimeout(function () { closeButton.focus(); }, 50);
+  }
+
+  function closeAlbum() {
+    if (typeof dialog.close === "function" && dialog.open) dialog.close();
+    else dialog.removeAttribute("open");
+  }
+
+  openButton.addEventListener("click", openAlbum);
+  closeButton.addEventListener("click", closeAlbum);
+  prevButton.addEventListener("click", function () { render(current - 1); });
+  nextButton.addEventListener("click", function () { render(current + 1); });
+  thumbs.forEach(function (thumb, index) {
+    thumb.addEventListener("click", function () { render(index); });
+  });
+  dialog.addEventListener("click", function (event) { if (event.target === dialog) closeAlbum(); });
+  dialog.addEventListener("keydown", function (event) {
+    if (event.key === "ArrowLeft") { event.preventDefault(); render(current - 1); }
+    if (event.key === "ArrowRight") { event.preventDefault(); render(current + 1); }
+  });
+  dialog.addEventListener("close", function () { openButton.focus(); });
 })();
