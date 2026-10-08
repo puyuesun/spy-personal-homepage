@@ -939,6 +939,24 @@ html[data-theme="light"] .project-link { color: #002fa7; background: linear-grad
 .interest-card h3 .en { display: block; font-size: 0.7rem; }
 .interest-card p { font-size: 0.88rem; color: var(--muted); }
 .interest-card p .en { display: block; font-size: 0.76rem; margin-top: 4px; }
+.interest-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 7px 12px;
+  border: 1px solid rgba(86, 142, 255, 0.46);
+  border-radius: 999px;
+  color: var(--accent);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)), rgba(0, 47, 167, 0.24);
+  box-shadow: var(--glass-inner);
+  font-size: 0.76rem;
+  font-weight: 700;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.interest-link:hover { transform: translateY(-2px); border-color: rgba(122, 170, 255, 0.82); background: linear-gradient(150deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03)), rgba(0, 47, 167, 0.34); }
+.interest-link .en { display: inline; color: inherit; }
+html[data-theme="light"] .interest-link { color: #002fa7; background: linear-gradient(150deg, rgba(255, 255, 255, 0.96), rgba(225, 235, 255, 0.78)), rgba(255, 255, 255, 0.72); }
 
 /* ---------- 联系 ---------- */
 .contact-grid {
